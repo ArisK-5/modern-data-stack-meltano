@@ -1,4 +1,4 @@
-name: "jaffle_shop_duckdb"
+name: "jaffle_shop"
 version: "1.0.0"
 
 # This setting configures which "profile" dbt uses for this project.
@@ -16,7 +16,7 @@ clean-targets:
   - "dbt_packages"
 
 models:
-  jaffle_shop_duckdb:
+  jaffle_shop:
     staging:
       +schema: staging
       +materialized: view
