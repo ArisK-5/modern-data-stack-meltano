@@ -1,0 +1,7 @@
+sources:
+  - name: faker
+    schema: tap_airbyte
+    tables:
+      - name: products
+      - name: purchases
+      - name: users

@@ -1,0 +1,131 @@
+version: 2
+
+models:
+  - name: stg_products
+    description: |
+      Staging model for the `products` source table. This model performs light
+      renaming and type casting of raw source columns so downstream models
+      can rely on stable column names and types. Keep this model as a
+      low-cost view that mirrors the source; do heavier cleaning in
+      intermediate or mart layers.
+    columns:
+      - name: product_id
+        description: "Primary product identifier (renamed from `id`)."
+        tests: [unique, not_null]
+
+      - name: brand
+        description: "Product manufacturer / brand (renamed from `make`)."
+
+      - name: model
+        description: "Product model name or number (raw `model`)."
+
+      - name: release_year
+        description: "Product release year (renamed from `year`)."
+
+      - name: price_euros
+        description: "Source price column (renamed to indicate currency)."
+
+      - name: created_at
+        description: "Source-created timestamp cast to timestamp type."
+
+      - name: updated_at
+        description: "Source-updated timestamp cast to timestamp type."
+
+  - name: stg_purchases
+    description: |
+      Staging model for the `purchases` source table. This model standardizes
+      identifier column names and converts timestamp-like strings into
+      timestamp-typed columns. It also derives a couple of boolean flags
+      (successful / returned) for easier downstream filtering.
+    columns:
+      - name: purchase_id
+        description: "Primary purchase identifier (renamed from `id`)."
+        tests: [unique, not_null]
+
+      - name: user_id
+        description: "Foreign key to the users table; as supplied by the source."
+        tests: [not_null]
+
+      - name: product_id
+        description: "Foreign key to the products table; as supplied by the source."
+        tests: [not_null]
+
+      - name: is_successful_purchase
+        description: "Boolean derived from whether `purchased_at` is present in the source. True if the purchase completed."
+
+      - name: is_returned_purchase
+        description: "Boolean derived from whether `returned_at` is present in the source."
+
+      - name: added_to_cart_at
+        description: "Timestamp when the item was added to cart (cast to timestamp)."
+
+      - name: created_at
+        description: "Source-created timestamp cast to timestamp type."
+
+      - name: purchased_at
+        description: "Timestamp when purchase occurred (may be NULL for abandoned carts)."
+
+      - name: returned_at
+        description: "Timestamp when purchase was returned (may be NULL)."
+
+      - name: updated_at
+        description: "Source updated timestamp cast to timestamp type."
+
+  - name: stg_users
+    description: |
+      Staging model for the `users` source table. This model renames fields
+      to stable column names and extracts a small piece of structured data
+      from the `address` JSON (residence_state). Keep the model lightweight
+      — perform PII handling or enrichment in downstream layers if needed.
+    columns:
+      - name: user_id
+        description: "Primary user identifier (renamed from `id`)."
+        tests: [unique, not_null]
+
+      - name: title
+        description: "Honorific or title from the source (e.g., 'Mr.', 'Ms.')."
+
+      - name: first_name
+        description: "User first/given name (renamed from `name`)."
+
+      - name: nationality
+        description: "User nationality as provided by the source."
+
+      - name: residence_state
+        description: "State extracted from the `address` JSON column (address->>'state')."
+
+      - name: occupation
+        description: "User occupation/job title."
+
+      - name: academic_degree
+        description: "Highest academic degree reported in source."
+
+      - name: preferred_language
+        description: "Language preference (renamed from `language`)."
+
+      - name: email
+        description: "Contact email as provided by the source."
+
+      - name: blood_type
+        description: "Raw blood type field from the source (kept for demo data)."
+
+      - name: age
+        description: "Age (numeric); cast may be applied in downstream layers if needed."
+
+      - name: gender
+        description: "Gender field as provided; treat with care for privacy-sensitive handling."
+
+      - name: telephone
+        description: "Raw telephone string from the source."
+
+      - name: height_meters
+        description: "Height column renamed to indicate units (meters)."
+
+      - name: weight_kgs
+        description: "Weight column renamed to indicate units (kilograms)."
+
+      - name: created_at
+        description: "Source-created timestamp cast to timestamp type."
+
+      - name: updated_at
+        description: "Source-updated timestamp cast to timestamp type."

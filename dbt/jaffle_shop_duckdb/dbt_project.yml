@@ -1,0 +1,28 @@
+name: "jaffle_shop_duckdb"
+version: "1.0.0"
+
+# This setting configures which "profile" dbt uses for this project.
+profile: "duckdb-dbt"
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  jaffle_shop_duckdb:
+    staging:
+      +schema: staging
+      +materialized: view
+    # intermediate:
+    #   +schema: intermediate
+    #   +materialized: ephemeral
+    marts:
+      +schema: marts
+      +materialized: table

@@ -1,0 +1,54 @@
+version: 1
+default_environment: dev
+project_id: 0199df13-8670-7e72-9cfa-738eb173ac34
+environments:
+  - name: dev
+  - name: staging
+  - name: prod
+plugins:
+  extractors:
+    - name: tap-faker
+      variant: airbyte
+      pip_url: git+https://github.com/MeltanoLabs/tap-airbyte-wrapper.git
+  loaders:
+    - name: target-duckdb
+      variant: jwills
+      pip_url: target-duckdb~=0.8
+      config:
+        path: ../duckdb/jaffle_shop.duckdb
+  utilities:
+    - name: dbt-duckdb
+      variant: jwills
+      pip_url: dbt-core dbt-duckdb meltano-dbt-ext~=0.3.0
+      config:
+        path: ../duckdb/jaffle_shop.duckdb
+        project_dir: ${DBT_PROJECT_DIR} # ../dbt/jaffle_shop_duckdb
+        profiles_dir: ${DBT_PROFILES_DIR} # ../dbt/jaffle_shop_duckdb
+    - name: superset
+      variant: meltano
+      pip_url: >
+        apache-superset==3.1.1  
+        flask==2.2.5  
+        werkzeug==2.3.3  
+        jinja2==3.0.1  
+        wtforms==2.3.3  
+        git+https://github.com/meltano/superset-ext.git@main  
+        cryptography==41.0.2  
+        marshmallow<4  
+        setuptools<81  
+        duckdb-engine==0.13.0
+      config:
+        SECRET_KEY: ${SUPERSET_SECRET_KEY}
+
+jobs:
+  # Runs the whole pipeline
+  - name: etl
+    tasks:
+      - tap-faker target-duckdb # Extract & Load
+      - dbt-duckdb:deps # Install dbt dependencies
+      - dbt-duckdb:build # Run dbt transformations (models, tests, snapshots, seeds)
+  # Generates and serves the dbt docs site
+  - name: dbt_docs
+    tasks:
+      - dbt-duckdb:docs-generate
+      - dbt-duckdb:docs-serve
