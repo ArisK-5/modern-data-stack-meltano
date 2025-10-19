@@ -7,3 +7,4 @@ dbt_packages/
 logs/
 *.duckdb
 *.env
+NOTES.md
