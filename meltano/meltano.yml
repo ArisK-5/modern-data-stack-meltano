@@ -7,9 +7,11 @@ environments:
   - name: prod
 plugins:
   extractors:
-    - name: tap-faker
-      variant: airbyte
-      pip_url: git+https://github.com/MeltanoLabs/tap-airbyte-wrapper.git
+    - name: tap-jaffle-shop
+      variant: meltanolabs
+      pip_url: git+https://github.com/MeltanoLabs/tap-jaffle-shop.git
+      config:
+        years: 1
   loaders:
     - name: target-duckdb
       variant: jwills
@@ -22,33 +24,48 @@ plugins:
       pip_url: dbt-core dbt-duckdb meltano-dbt-ext~=0.3.0
       config:
         path: ../duckdb/jaffle_shop.duckdb
-        project_dir: ${DBT_PROJECT_DIR} # ../dbt/jaffle_shop_duckdb
-        profiles_dir: ${DBT_PROFILES_DIR} # ../dbt/jaffle_shop_duckdb
+        project_dir: ${DBT_PROJECT_DIR} # ../dbt/jaffle_shop
+        profiles_dir: ${DBT_PROFILES_DIR} # ../dbt/jaffle_shop
     - name: superset
       variant: meltano
       pip_url: >
-        apache-superset==3.1.1  
-        flask==2.2.5  
-        werkzeug==2.3.3  
-        jinja2==3.0.1  
-        wtforms==2.3.3  
-        git+https://github.com/meltano/superset-ext.git@main  
-        cryptography==41.0.2  
-        marshmallow<4  
-        setuptools<81  
-        duckdb-engine==0.13.0
+        apache-superset==3.1.1
+        flask==2.2.5
+        werkzeug==2.3.3
+        jinja2==3.0.1
+        wtforms==2.3.3
+        git+https://github.com/meltano/superset-ext.git@main
+        cryptography==41.0.2
+        marshmallow<4
+        click==8.1.7
+        typer==0.6.1
+        setuptools<81
       config:
         SECRET_KEY: ${SUPERSET_SECRET_KEY}
-
 jobs:
-  # Runs the whole pipeline
-  - name: etl
+  # Extract and load the raw data
+  - name: el
     tasks:
-      - tap-faker target-duckdb # Extract & Load
-      - dbt-duckdb:deps # Install dbt dependencies
-      - dbt-duckdb:build # Run dbt transformations (models, tests, snapshots, seeds)
+      - tap-jaffle-shop target-duckdb
+  # Transform the raw data
+  - name: t
+    tasks:
+      - dbt-duckdb:run
+      - dbt-duckdb:test
+  # Extract, Load, and Transform
+  - name: elt
+    tasks:
+      - tap-jaffle-shop target-duckdb
+      - dbt-duckdb:run
+      - dbt-duckdb:test
+  # Builds the ELT pipeline
+  - name: elt-build
+    tasks:
+      - tap-jaffle-shop target-duckdb
+      - dbt-duckdb:deps
+      - dbt-duckdb:build
   # Generates and serves the dbt docs site
-  - name: dbt_docs
+  - name: dbt-docs
     tasks:
       - dbt-duckdb:docs-generate
       - dbt-duckdb:docs-serve

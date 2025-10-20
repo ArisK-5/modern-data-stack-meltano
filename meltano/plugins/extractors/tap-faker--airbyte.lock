@@ -1,10 +1,10 @@
 {
   "plugin_type": "extractors",
-  "name": "tap-faker",
+  "name": "tap-jaffle",
   "namespace": "tap_airbyte",
   "variant": "airbyte",
   "label": "Faker - Mimesis",
-  "docs": "https://hub.meltano.com/extractors/tap-faker--airbyte",
+  "docs": "https://hub.meltano.com/extractors/tap-jaffle--airbyte",
   "repo": "https://github.com/airbytehq/airbyte/tree/master/airbyte-integrations/connectors/source-faker",
   "pip_url": "git+https://github.com/MeltanoLabs/tap-airbyte-wrapper.git",
   "executable": "tap-airbyte",

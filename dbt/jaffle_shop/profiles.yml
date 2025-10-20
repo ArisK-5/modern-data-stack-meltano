@@ -4,5 +4,4 @@ duckdb-dbt:
       type: duckdb
       path: "{{ env_var('ABS_DUCKDB_FILE_PATH') }}"
       threads: 4
-      # extensions: []
   target: dev
