@@ -1,7 +1,6 @@
 name: "jaffle_shop"
 version: "1.0.0"
 
-# This setting configures which "profile" dbt uses for this project.
 profile: "duckdb-dbt"
 
 model-paths: ["models"]
@@ -20,9 +19,9 @@ models:
     staging:
       +schema: staging
       +materialized: view
-    # intermediate:
-    #   +schema: intermediate
-    #   +materialized: ephemeral
+    intermediate:
+      +schema: intermediate
+      +materialized: ephemeral
     marts:
       +schema: marts
       +materialized: table

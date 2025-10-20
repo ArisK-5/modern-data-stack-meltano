@@ -10,6 +10,8 @@ plugins:
     - name: tap-jaffle-shop
       variant: meltanolabs
       pip_url: git+https://github.com/MeltanoLabs/tap-jaffle-shop.git
+      config:
+        years: 1
   loaders:
     - name: target-duckdb
       variant: jwills
@@ -41,14 +43,29 @@ plugins:
       config:
         SECRET_KEY: ${SUPERSET_SECRET_KEY}
 jobs:
-  # Runs the whole pipeline
-  - name: etl
+  # Extract and load the raw data
+  - name: el
     tasks:
-      - tap-jaffle-shop target-duckdb # Extract & Load
-      - dbt-duckdb:deps # Install dbt dependencies
-      - dbt-duckdb:build # Run dbt transformations (models, tests, snapshots, seeds)
-        # Generates and serves the dbt docs site
-  - name: dbt_docs
+      - tap-jaffle-shop target-duckdb
+  # Transform the raw data
+  - name: t
+    tasks:
+      - dbt-duckdb:run
+      - dbt-duckdb:test
+  # Extract, Load, and Transform
+  - name: elt
+    tasks:
+      - tap-jaffle-shop target-duckdb
+      - dbt-duckdb:run
+      - dbt-duckdb:test
+  # Builds the ELT pipeline
+  - name: elt-build
+    tasks:
+      - tap-jaffle-shop target-duckdb
+      - dbt-duckdb:deps
+      - dbt-duckdb:build
+  # Generates and serves the dbt docs site
+  - name: dbt-docs
     tasks:
       - dbt-duckdb:docs-generate
       - dbt-duckdb:docs-serve
