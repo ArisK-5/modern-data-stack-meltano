@@ -18,7 +18,7 @@ renamed as (
         description as product_description,
 
         -- numerics
-        price as product_price,
+        (price / 100.0)::float as product_price,
 
         -- booleans
         case

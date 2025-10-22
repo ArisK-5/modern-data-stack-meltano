@@ -6,7 +6,6 @@ build-backend = "uv_build"
 name = "modern_data_stack_meltano"
 version = "0.1.0"
 description = "A Jaffle Shop DuckDB dbt Project"
-# Allow Meltano-managed environments using Python 3.10 or 3.11 to satisfy some plugin requirements
 requires-python = ">=3.10,<3.12"
 
 dependencies = [

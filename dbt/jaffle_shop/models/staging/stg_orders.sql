@@ -15,9 +15,9 @@ renamed as (
         customer as customer_id,
 
         -- numerics
-        order_total,
-        subtotal as order_subtotal,
-        tax_paid,
+        (order_total / 100.0)::float as order_total,
+        (subtotal / 100.0)::float as order_subtotal,
+        (tax_paid / 100.0)::float as tax_paid,
 
         -- timestamps
         ordered_at
