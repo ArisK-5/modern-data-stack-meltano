@@ -41,31 +41,45 @@ plugins:
         click==8.1.7
         typer==0.6.1
         setuptools<81
-      config:
-        SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      commands:
+        create_admin_user:
+          description: "Create Superset admin user"
+          args: >
+            superset fab create-admin
+            --username ${SUPERSET_ADMIN_USERNAME}
+            --firstname ${SUPERSET_ADMIN_FIRSTNAME}
+            --lastname ${SUPERSET_ADMIN_LASTNAME}
+            --email ${SUPERSET_ADMIN_EMAIL}
+            --password ${SUPERSET_ADMIN_PASSWORD}
+        import_sample_dashboard:
+          description: "Import the sample Superset dashboard"
+          args: >
+            superset import-dashboards
+            -p analyze/superset/dashboards/business_and_customer_insights.zip
+            -u ${SUPERSET_ADMIN_USERNAME}
 jobs:
   # Extract and load the raw data
   - name: el
     tasks:
       - tap-jaffle-shop target-duckdb
-  # Transform the raw data
+        # Transform the raw data
   - name: t
     tasks:
       - dbt-duckdb:run
       - dbt-duckdb:test
-  # Extract, Load, and Transform
+        # Extract, Load, and Transform
   - name: elt
     tasks:
       - tap-jaffle-shop target-duckdb
       - dbt-duckdb:run
       - dbt-duckdb:test
-  # Builds the ELT pipeline
+        # Builds the ELT pipeline
   - name: elt-build
     tasks:
       - tap-jaffle-shop target-duckdb
       - dbt-duckdb:deps
       - dbt-duckdb:build
-  # Generates and serves the dbt docs site
+        # Generates and serves the dbt docs site
   - name: dbt-docs
     tasks:
       - dbt-duckdb:docs-generate
