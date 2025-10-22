@@ -42,14 +42,11 @@ models:
           - unique
       - name: customer_id
         description: The foreign key relating to the customer who placed the order.
-
-        # A good test to include but because of an error in the source data generator some customer ids that appear
-        # in the raw_orders table, are missing from the raw_customers.
-        # tests:
-        #   - relationships:
-        #       to: ref('stg_customers')
-        #       field: customer_id
-
+        tests:
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              severity: warn
       - name: location_id
         description: The foreign key relating to the location the order was placed at.
       - name: order_total
