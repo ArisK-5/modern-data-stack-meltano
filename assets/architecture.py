@@ -7,15 +7,12 @@ from diagrams.onprem.vcs import Git, Github
 
 # Project directories
 ROOT_DIR = Path(__file__).resolve().parent.parent
-ICONS_DIR = ROOT_DIR / "assets" / "icons"
-IMAGES_DIR = ROOT_DIR / "assets/images"
-
-# Ensure the images directory exists
-IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+ICONS_DIR = ROOT_DIR / "assets/icons"
+DIAGRAMS_DIR = ROOT_DIR / "assets/diagrams"
 
 with Diagram(
     "Modern Data Stack\n(detailed architecture)",
-    filename=str(IMAGES_DIR / "architecture"),
+    filename=str(DIAGRAMS_DIR / "architecture"),
     show=False,
     direction="LR",
 ):
@@ -24,11 +21,11 @@ with Diagram(
     git = Git("Git\n(Version Control)")
     github = Github("GitHub\n(Repository Hosting)")
 
-    dev - git  # Developer pushes to version control
+    dev >> Edge(label="Develop") >> git  # Developer pushes to version control
 
     (
         git >> Edge(label="Pull") >> github >> Edge(label="Push") >> git
-    )  # Version control hosted on GitHub
+    )  # Version control interaction with GitHub
 
     # DuckDB warehouse
     duckdb = Custom("DuckDB\n(Data Warehouse)", str(ICONS_DIR / "duckdb.png"))
@@ -51,5 +48,5 @@ with Diagram(
         duckdb >> Edge(label="Transform") >> dbt >> duckdb
         superset >> Edge(label="Read") >> duckdb
 
-    # Developer interacts with with the project (Meltano cluster) through git
+    # Developer interaction with the project (Meltano cluster) through git
     jafgen - git
