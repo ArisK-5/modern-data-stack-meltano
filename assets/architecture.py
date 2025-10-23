@@ -1,28 +1,55 @@
 from pathlib import Path
 
-from diagrams import Cluster, Diagram
+from diagrams import Cluster, Diagram, Edge
 from diagrams.custom import Custom
 from diagrams.onprem.analytics import Dbt, Superset
-from diagrams.onprem.vcs import Git
+from diagrams.onprem.vcs import Git, Github
 
+# Project directories
 ROOT_DIR = Path(__file__).resolve().parent.parent
 ICONS_DIR = ROOT_DIR / "assets" / "icons"
+IMAGES_DIR = ROOT_DIR / "assets/images"
+
+# Ensure the images directory exists
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
 with Diagram(
-    name="Modern Data Stack (Local Development)",
-    filename="assets/images/architecture",
+    "Modern Data Stack\n(detailed architecture)",
+    filename=str(IMAGES_DIR / "architecture"),
     show=False,
     direction="LR",
 ):
-    with Cluster("Developer Environment"):
-        dev = Custom("Dev", str(ICONS_DIR / "dev.jpg"))
-        git = Git("Git (Version Control)")
+    # Developer environment
+    dev = Custom("Developer\n(uv environment)", str(ICONS_DIR / "dev.jpg"))
+    git = Git("Git\n(Version Control)")
+    github = Github("GitHub\n(Repository Hosting)")
 
-    with Cluster("Meltano"):
-        meltano = Custom("JafGen Extractor (EL)", str(ICONS_DIR / "meltano.png"))
-        duckdb = Custom("DuckDB (Data Warehouse)", str(ICONS_DIR / "duckdb.png"))
-        dbt = Dbt("dbt (Transform)")
-        superset = Superset("Superset (BI)")
+    dev - git  # Developer pushes to version control
 
-    dev >> git
-    dev >> meltano >> duckdb >> dbt >> duckdb >> superset
+    (
+        git >> Edge(label="Pull") >> github >> Edge(label="Push") >> git
+    )  # Version control hosted on GitHub
+
+    # DuckDB warehouse
+    duckdb = Custom("DuckDB\n(Data Warehouse)", str(ICONS_DIR / "duckdb.png"))
+
+    # Meltano cluster
+    with Cluster("Meltano\n(DataOps)"):
+        # Extractor
+        jafgen = Custom(
+            "JafGen Extractor\n(Data Ingestion)", str(ICONS_DIR / "meltano.png")
+        )
+
+        # dbt transformations
+        dbt = Dbt("dbt\n(Data Modeling)")
+
+        # Superset BI
+        superset = Superset("Superset\n(Business Intelligence)")
+
+        # Edges inside the cluster
+        jafgen >> Edge(label="Extract / Load") >> duckdb
+        duckdb >> Edge(label="Transform") >> dbt >> duckdb
+        superset >> Edge(label="Read") >> duckdb
+
+    # Developer interacts with with the project (Meltano cluster) through git
+    jafgen - git

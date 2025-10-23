@@ -6,7 +6,9 @@ The following is a rough guide to the project until its components are finalised
 
 # A Modern Data Stack w/ Meltano
 
-> uv, git, zsh, Python, SQL, Docker (soon), Meltano, DuckDB, dbt, Apache Superset
+> uv, git, zsh, Python, SQL
+
+> Meltano, DuckDB, dbt, Apache Superset
 
 ![Modern Data Stack w/ Meltano](/assets/images/architecture.png "the architecture of the project")
 
@@ -14,13 +16,13 @@ The following is a rough guide to the project until its components are finalised
 
 - rename `.env.example` to `.env` and fill with desired values
 - use uv to create the virtual environment ( `uv venv .venv` ) and install dependencies ( `uv sync` )
-- use direnv to load the .env file in the virtual environment ( `direnv allow` )
+- use direnv to load the `.env` file in the virtual environment ( `direnv allow` )
 
-After making changes in .env remember to reload the environment variables ( `direnv reload` )
+After making changes in `.env` remember to reload the environment variables ( `direnv reload` )
 
 ## DuckDB
 
-In the `/duckdb` folder:
+In the `/duckdb` folder run:
 
 - `duckdb jaffle_shop.duckdb` (create an empty database file)
 - `duckdb jaffle_shop.duckdb --ui` (connect to the database in the DuckDB ui)
@@ -28,6 +30,8 @@ In the `/duckdb` folder:
 Use `.quit` or `.exit` to exit the CLI and severe the database connection.
 
 Improtant note on DuckDB's [concurrency](https://duckdb.org/docs/stable/connect/concurrency).
+
+--> **TLDR**; In order to access the data in Superset (or transform them with dbt) you need to sever any open connection to the database from the DuckDB UI. That's because DuckDB allows only one read-write connection at a time to the database and currently the DuckDB UI does not have a read-only mode. You could though make a read-only connection using the DuckDB CLI.
 
 ## Meltano
 
@@ -54,9 +58,9 @@ The models used in this project were taken from Meltano's [Jaffle Shop Template]
 
   `meltano invoke superset shell` and then `exec(open("analyze/superset/register_duckdb.py").read())`
 
-  Otherwise, configure the connection manually in the DuckDB ui.
+  Otherwise, configure the connection manually in the DuckDB UI.
 
-- `meltano invoke superset:ui` (to launch [Superset ui](http://127.0.0.1:8088/))
+- `meltano invoke superset:ui` (to launch [Superset UI](http://127.0.0.1:8088/))
 
 ## Future Improvements
 
