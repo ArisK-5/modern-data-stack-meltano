@@ -1,12 +1,8 @@
-## <center> ~ Under Construction ~ </center>
-
-<center> The following is a rough guide to the project until its components are finalised. </center>
-
----
-
 # A Modern Data Stack w/ Meltano -- local dev version
 
 ![Modern Data Stack w/ Meltano](/assets/diagrams/architecture.png "the architecture of the project")
+
+---
 
 ## Table of Contents
 
